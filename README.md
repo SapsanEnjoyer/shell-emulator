@@ -119,7 +119,18 @@ Makefile          make run / make test
 
 ## Сборка и тесты
 
-Сборка не требуется, нужен Python 3.9+ с tkinter. Тестовые VFS:
+Сборка не требуется, нужен Python 3.9+ с tkinter. На macOS системный
+Python содержит устаревший Tk 8.5, который в новых версиях macOS
+показывает пустое окно, поэтому рекомендуется Python с Tk 8.6+:
+
+```bash
+brew install python-tk@3.13
+```
+
+`run.sh` и `Makefile` сами выбирают `python3.13`, если он установлен,
+иначе `python3`. Интерпретатор можно задать явно: `PYTHON=python3 ./run.sh`.
+
+Тестовые VFS:
 
 ```bash
 make vfs

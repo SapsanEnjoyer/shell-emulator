@@ -1,4 +1,4 @@
-PYTHON ?= python3
+PYTHON ?= $(shell command -v python3.13 || echo python3)
 
 .PHONY: run test vfs
 
