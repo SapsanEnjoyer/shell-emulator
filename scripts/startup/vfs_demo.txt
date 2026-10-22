@@ -1,0 +1,17 @@
+# Полная проверка этапов 1-3 (запускать с --vfs vfs/deep.zip)
+# --- этап 1: парсер и заглушки ---
+ls
+ls -l "my documents" 'single quoted' a"b c"d my\ file
+cd /home/user
+cd "dir with \"quotes\""
+# --- этап 3: служебная команда vfs ---
+vfs info
+vfs tree
+vfs cat /etc/hostname
+vfs cat home/user/docs/2026/october/plan.txt
+vfs cat ./etc/config/../config/app.conf
+vfs cat /home/user/docs/2026/october/data.bin
+# --- обработка ошибок: скрипт остановится на первой ---
+vfs cat /no/such/file
+vfs cat /etc
+unknown_command

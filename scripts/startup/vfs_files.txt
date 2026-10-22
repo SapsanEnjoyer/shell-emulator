@@ -1,0 +1,7 @@
+# Проверка VFS с несколькими файлами (--vfs vfs/files.zip)
+vfs info
+vfs tree
+vfs cat notes.txt
+vfs cat "my file.txt"
+vfs cat image.png
+vfs cat logo.bin

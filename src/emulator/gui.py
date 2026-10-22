@@ -64,7 +64,7 @@ class EmulatorWindow:
             self.write_error(f"Ошибка: {error}")
             return False
         if result:
-            self.write(result)
+            self.write(result.rstrip("\n"))
         self.prompt_label.configure(text=self.shell.prompt())
         if not self.shell.running:
             self.entry.configure(state=tk.DISABLED)

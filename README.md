@@ -61,6 +61,43 @@
 Стартовые скрипты эмулятора (`scripts/startup/`): `basic.txt`,
 `error.txt`, `syntax_error.txt`, `exit.txt`.
 
+## Этап 3. VFS
+
+- Источник VFS — ZIP-архив (`--vfs путь.zip`). Архив целиком читается
+  в память (`io.BytesIO`) и превращается в дерево узлов; на диск ничего
+  не распаковывается, исходный файл не изменяется.
+- Двоичные файлы хранятся как байты и показываются в base64
+  (с пометкой `[base64]`). Файл архива с суффиксом `.b64` считается
+  закодированным в base64 и декодируется при загрузке (`logo.bin.b64` →
+  `logo.bin`).
+- Ошибки загрузки (файл не найден, не ZIP, путь с `..`, конфликт имён)
+  выводятся в окне; эмулятор продолжает работу с пустой VFS,
+  стартовый скрипт при этом не выполняется.
+- Без `--vfs` используется пустая VFS в памяти с именем `vfs`.
+
+Служебная команда `vfs`:
+
+| Команда | Описание |
+|---|---|
+| `vfs info` | имя, источник, число каталогов, файлов и байт |
+| `vfs tree` | дерево всех файлов и каталогов |
+| `vfs cat ПУТЬ` | содержимое файла (абсолютный или относительный путь) |
+
+Тестовые архивы не хранятся в репозитории (архивы в git запрещены),
+а генерируются скриптом `tools/make_vfs.py` в каталог `vfs/`:
+`minimal.zip` (один файл), `files.zip` (несколько файлов, двоичные),
+`deep.zip` (5 уровней вложенности, пустые каталоги), `empty.zip`,
+`broken.zip` (не ZIP).
+
+Скрипты реальной ОС для проверки VFS:
+
+| Скрипт | Что проверяет |
+|---|---|
+| `test_vfs_minimal.sh` | минимальная VFS |
+| `test_vfs_files.sh` | несколько файлов, двоичные данные |
+| `test_vfs_deep.sh` | глубокая VFS, все команды этапов 1–3 (`vfs_demo.txt`) |
+| `test_vfs_errors.sh` | пустая VFS, повреждённый и отсутствующий архив |
+
 ## Структура
 
 ```
@@ -70,6 +107,8 @@ src/emulator/     исходный код
   shell.py        ядро: выполнение команд
   config.py       параметры командной строки
   script.py       чтение стартовых скриптов
+  vfs.py          виртуальная файловая система из ZIP
+tools/make_vfs.py генерация тестовых VFS
   gui.py          окно tkinter
 tests/            модульные тесты (unittest)
 scripts/          скрипты ОС для запуска эмулятора
@@ -80,10 +119,14 @@ Makefile          make run / make test
 
 ## Сборка и тесты
 
-Сборка не требуется, нужен Python 3.9+ с tkinter.
+Сборка не требуется, нужен Python 3.9+ с tkinter. Тестовые VFS:
 
 ```bash
-./run.sh --vfs vfs/demo.zip --script scripts/startup/basic.txt
+make vfs
+```
+
+```bash
+./run.sh --vfs vfs/deep.zip --script scripts/startup/vfs_demo.txt
 ```
 
 ```bash
@@ -105,4 +148,20 @@ user@vfs:/$ exit abc
 Ошибка: exit: abc: требуется числовой аргумент
 user@vfs:/$ exit
 exit
+```
+
+Работа с VFS (`./scripts/test_vfs_deep.sh`):
+
+```
+user@deep:/$ vfs info
+имя: deep
+источник: vfs/deep.zip
+каталогов: 12, файлов: 7, байт: 410
+user@deep:/$ vfs cat /etc/hostname
+emulator
+user@deep:/$ vfs cat /home/user/docs/2026/october/data.bin
+[base64] iVBORw0KGgoAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAh...
+user@deep:/$ vfs cat /no/such/file
+Ошибка: vfs: /no/such/file: нет такого файла или каталога
+Скрипт остановлен: ошибка в строке 15
 ```

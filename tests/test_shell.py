@@ -3,6 +3,7 @@
 import unittest
 
 from emulator.shell import Shell, ShellError
+from emulator.vfs import VirtualFileSystem
 
 
 class ShellTest(unittest.TestCase):
@@ -10,7 +11,7 @@ class ShellTest(unittest.TestCase):
 
     def setUp(self):
         """Создать оболочку для каждого теста."""
-        self.shell = Shell("test")
+        self.shell = Shell(VirtualFileSystem("test"))
 
     def test_ls_stub(self):
         """ls выводит имя и аргументы."""
