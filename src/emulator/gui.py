@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 
+from emulator.script import ScriptError, load_script
 from emulator.shell import ShellError
 
 FONT = ("Menlo", 13)
@@ -68,6 +69,25 @@ class EmulatorWindow:
         if not self.shell.running:
             self.entry.configure(state=tk.DISABLED)
             self.root.after(EXIT_DELAY_MS, self.root.destroy)
+        return True
+
+    def run_script(self, path):
+        """Выполнить стартовый скрипт, остановившись на первой ошибке."""
+        self.write(f"--- выполнение скрипта {path} ---")
+        try:
+            commands = load_script(path)
+        except ScriptError as error:
+            self.write_error(f"Ошибка скрипта: {error}")
+            return False
+        for number, line in commands:
+            if not self.shell.running:
+                break
+            if not self.run_line(line):
+                self.write_error(
+                    f"Скрипт остановлен: ошибка в строке {number}"
+                )
+                return False
+        self.write(f"--- скрипт {path} выполнен ---")
         return True
 
     def _on_enter(self, _event):

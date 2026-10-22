@@ -1,0 +1,6 @@
+# Базовый сценарий: все команды этапов 1-2 без ошибок
+ls
+ls -l "my documents"
+cd /home/user
+cd 'dir with spaces'
+ls a"b c"d my\ file

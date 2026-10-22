@@ -1,0 +1,4 @@
+# Проверка exit: ошибочный вызов останавливает скрипт
+ls before
+exit not_a_number
+ls after
